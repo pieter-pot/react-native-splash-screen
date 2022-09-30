@@ -3,6 +3,7 @@ package org.devio.rn.splashscreen;
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Build;
+import android.view.View;
 import android.view.WindowManager;
 
 import java.lang.ref.WeakReference;
@@ -18,6 +19,11 @@ import java.lang.ref.WeakReference;
 public class SplashScreen {
     private static Dialog mSplashDialog;
     private static WeakReference<Activity> mActivity;
+    private static View contentView;
+
+    public static void initialize(View view) {
+        SplashScreen.contentView = view;
+    }
 
     /**
      * 打开启动屏
@@ -30,7 +36,11 @@ public class SplashScreen {
             public void run() {
                 if (!activity.isFinishing()) {
                     mSplashDialog = new Dialog(activity, themeResId);
-                    mSplashDialog.setContentView(R.layout.launch_screen);
+                    if (SplashScreen.contentView != null) {
+                        mSplashDialog.setContentView(SplashScreen.contentView);
+                    } else {
+                        mSplashDialog.setContentView(R.layout.launch_screen);
+                    }
                     mSplashDialog.setCancelable(false);
                     if (fullScreen) {
                         setActivityAndroidP(mSplashDialog);
