@@ -12,7 +12,8 @@
 
 static bool waiting = true;
 static bool addedJsLoadErrorObserver = false;
-static UIView* loadingView = nil;
+static UIView* _loadingView = nil;
+static UIViewController* _reactController = nil;
 
 @implementation RNSplashScreen
 - (dispatch_queue_t)methodQueue{
@@ -32,16 +33,25 @@ RCT_EXPORT_MODULE(SplashScreen)
     }
 }
 
++ (void) showSplashWithViewController:(UIViewController*)controller initReactController:(UIViewController*)reactController {
+    waiting = false;
+    if (!_reactController) {
+        _reactController = reactController;
+    }
+    
+    [[[UIApplication sharedApplication] delegate] window].rootViewController = controller;
+}
+
 + (void)showSplash:(NSString*)splashScreen inRootView:(UIView*)rootView {
-    if (!loadingView) {
-        loadingView = [[[NSBundle mainBundle] loadNibNamed:splashScreen owner:self options:nil] objectAtIndex:0];
+    if (!_loadingView) {
+        _loadingView = [[[NSBundle mainBundle] loadNibNamed:splashScreen owner:self options:nil] objectAtIndex:0];
         CGRect frame = rootView.frame;
         frame.origin = CGPointMake(0, 0);
-        loadingView.frame = frame;
+        _loadingView.frame = frame;
     }
     waiting = false;
     
-    [rootView addSubview:loadingView];
+    [rootView addSubview:_loadingView];
 }
 
 + (void)hide {
@@ -51,8 +61,11 @@ RCT_EXPORT_MODULE(SplashScreen)
         });
     } else {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [loadingView removeFromSuperview];
+            [_loadingView removeFromSuperview];
         });
+        if (_reactController) {
+            [[[UIApplication sharedApplication] delegate] window].rootViewController = _reactController;
+        }
     }
 }
 
