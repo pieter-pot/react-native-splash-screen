@@ -14,6 +14,7 @@ static bool waiting = true;
 static bool addedJsLoadErrorObserver = false;
 static UIView* _loadingView = nil;
 static UIViewController* _reactController = nil;
+static UIViewController* _splashscreenController = nil;
 
 @implementation RNSplashScreen
 - (dispatch_queue_t)methodQueue{
@@ -39,7 +40,9 @@ RCT_EXPORT_MODULE(SplashScreen)
         _reactController = reactController;
     }
     
-    [[[UIApplication sharedApplication] delegate] window].rootViewController = controller;
+    _splashscreenController = controller;
+    
+    [[[UIApplication sharedApplication] delegate] window].rootViewController = _splashscreenController;
 }
 
 + (void)showSplash:(NSString*)splashScreen inRootView:(UIView*)rootView {
@@ -65,6 +68,7 @@ RCT_EXPORT_MODULE(SplashScreen)
         });
         if (_reactController) {
             [[[UIApplication sharedApplication] delegate] window].rootViewController = _reactController;
+            [UIView transitionWithView:[[[UIApplication sharedApplication] delegate] window] duration:0.5 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{} completion:^(BOOL){}];
         }
     }
 }
